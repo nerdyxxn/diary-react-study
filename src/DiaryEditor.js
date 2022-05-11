@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useRef, useState } from "react";
 
-const DiaryEditor = () => {
+const DiaryEditor = ({ onCreate }) => {
   // DOM 객체에 접근하기 위한 useRef 레퍼런스 객체 생성
   const authorInput = useRef();
   const contentInput = useRef();
@@ -31,8 +31,14 @@ const DiaryEditor = () => {
       contentInput.current.focus();
       return;
     }
-    console.log(state);
+    // App.js에서 보낸 onCreate를 호출해서 데이터 추가
+    onCreate(state.author, state.content, state.emotion);
     alert("저장 성공!");
+    setState({
+      author: "",
+      content: "",
+      emotion: 1,
+    });
   };
 
   return (
