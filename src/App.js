@@ -4,30 +4,6 @@ import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
 
-// const dummyList = [
-//   {
-//     id: 1,
-//     author: "멋쟁이토마토",
-//     content: "일기 리스트 내용 1",
-//     emotion: 3,
-//     created_date: new Date().getTime(),
-//   },
-//   {
-//     id: 2,
-//     author: "알감자",
-//     content: "일기 리스트 내용 2",
-//     emotion: 2,
-//     created_date: new Date().getTime(),
-//   },
-//   {
-//     id: 3,
-//     author: "윤성",
-//     content: "일기 리스트 내용 3",
-//     emotion: 5,
-//     created_date: new Date().getTime(),
-//   },
-// ];
-
 function App() {
   // 1. 일기 데이터를 관리할 state 생성
   const [data, setData] = useState([]);
@@ -47,17 +23,24 @@ function App() {
     setData([newItem, ...data]);
   };
 
-  const onDelete = targetId => {
-    console.log(`${targetId}가 삭제되었습니다`);
+  const onRemove = targetId => {
     const newDiaryList = data.filter(it => it.id !== targetId);
     setData(newDiaryList);
+  };
+
+  const onEdit = (targetId, newContent) => {
+    setData(
+      data.map(list =>
+        list.id === targetId ? { ...list, content: newContent } : list
+      )
+    );
   };
 
   // 3. onCreate() 함수를 DiaryList에 props으로 전달
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate} />
-      <DiaryList onDelete={onDelete} diaryList={data} />
+      <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
     </div>
   );
 }
