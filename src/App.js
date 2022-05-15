@@ -1,11 +1,9 @@
 /* eslint-disable */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
-
-// https://jsonplaceholder.typicode.com/comments
 
 function App() {
   // 1. 일기 데이터를 관리할 state 생성
@@ -71,10 +69,25 @@ function App() {
     );
   };
 
+  const getDiaryAnalysis = useMemo(() => {
+    console.log("일기 분석 시작");
+
+    const goodCount = data.filter(it => it.emotion >= 3).length;
+    const badCount = data.length - goodCount;
+    const goodRatio = (goodCount / data.length) * 100;
+    return { goodCount, badCount, goodRatio };
+  }, [data.length]);
+
+  const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
+
   // 3. onCreate() 함수를 DiaryList에 props으로 전달
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate} />
+      <div>전체 일기 : {data.length}</div>
+      <div>기분 좋은 일기 개수 : {goodCount}</div>
+      <div>기분 나쁜 일기 개수 : {badCount}</div>
+      <div>기분 좋은 일기 비율 : {goodRatio}</div>
       <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
     </div>
   );
