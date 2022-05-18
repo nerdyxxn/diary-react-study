@@ -2,9 +2,6 @@
 import React, { useRef, useState, useEffect } from "react";
 
 const DiaryEditor = ({ onCreate }) => {
-  useEffect(() => {
-    console.log("DiaryEditor Render!");
-  });
   // DOM 객체에 접근하기 위한 useRef 레퍼런스 객체 생성
   const authorInput = useRef();
   const contentInput = useRef();
