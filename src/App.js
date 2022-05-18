@@ -1,23 +1,41 @@
-/* eslint-disable */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import DiaryEditor from "./DiaryEditor";
 import DiaryList from "./DiaryList";
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "INIT": {
+      return action.data;
+    }
+    case "CREATE": {
+      const created_date = new Date().getTime();
+      const newItem = {
+        ...action.data,
+        created_date,
+      };
+      return [newItem, ...state];
+    }
+    case "REMOVE": {
+      return state.filter(it => it.id !== action.targetId);
+    }
+    case "EDIT": {
+      return state.map(it =>
+        it.id === action.targetId ? { ...it, content: action.newContent } : it
+      );
+    }
+    default:
+      return state;
+  }
+};
+
 function App() {
-  // 1. 일기 데이터를 관리할 state 생성
-  const [data, setData] = useState([]);
-  // 2. onCreate 함수 생성 -> 데이터 추가 기능 구현
-  // id는 useRef를 활용해 현재값 current + 1 형태로 구현
+  //const [data, setData] = useState([]);
+  const [data, dispatch] = useReducer(reducer, []);
+
   const dataId = useRef(0);
 
-  // const getData = async () => {
-  //   const res = await fetch(
-  //     "https://jsonplaceholder.typicode.com/comments"
-  //   ).then(res => res.json());
-  //   console.log(res);
-  // };
   const getData = () => {
     axios
       .get("https://jsonplaceholder.typicode.com/comments")
@@ -32,7 +50,8 @@ function App() {
             id: dataId.current++,
           };
         });
-        setData(initData);
+        //setData(initData);
+        dispatch({ type: "INIT", data: initData });
       })
       .catch(() => {
         console.log("데이터 호출 실패!");
@@ -44,28 +63,26 @@ function App() {
   }, []);
 
   const onCreate = useCallback((author, content, emotion) => {
-    const created_date = new Date().getTime();
-    const newItem = {
-      author,
-      content,
-      emotion,
-      created_date,
-      id: dataId.current,
-    };
+    dispatch({
+      type: "CREATE",
+      //created_date는 reducer 함수에서 만들 것임
+      data: { author, content, emotion, id: dataId.current },
+    });
     dataId.current += 1;
-    setData(data => [newItem, ...data]);
   }, []);
 
   const onRemove = useCallback(targetId => {
-    setData(data => data.filter(it => it.id !== targetId));
+    dispatch({ type: "REMOVE", targetId });
+    //setData(data => data.filter(it => it.id !== targetId));
   }, []);
 
   const onEdit = useCallback((targetId, newContent) => {
-    setData(data =>
-      data.map(list =>
-        list.id === targetId ? { ...list, content: newContent } : list
-      )
-    );
+    dispatch({ type: "EDIT", targetId, newContent });
+    // setData(data =>
+    //   data.map(list =>
+    //     list.id === targetId ? { ...list, content: newContent } : list
+    //   )
+    // );
   }, []);
 
   const getDiaryAnalysis = useMemo(() => {
@@ -77,7 +94,6 @@ function App() {
 
   const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
 
-  // 3. onCreate() 함수를 DiaryList에 props으로 전달
   return (
     <div className="App">
       <DiaryEditor onCreate={onCreate} />
