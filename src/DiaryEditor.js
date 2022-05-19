@@ -1,7 +1,13 @@
 /* eslint-disable */
 import React, { useRef, useState, useEffect } from "react";
+import { useContext } from "react";
+import { DiaryDispatchContext } from "./App";
 
-const DiaryEditor = ({ onCreate }) => {
+const DiaryEditor = () => {
+  // DiaryDispatchContext는 onCreate, onRemove, onEdit로 이루어진
+  // memoized된 객체로 전달되기 때문에 아래처럼 {} 비구조화 할당으로 받아와야 함
+  const { onCreate } = useContext(DiaryDispatchContext);
+
   // DOM 객체에 접근하기 위한 useRef 레퍼런스 객체 생성
   const authorInput = useRef();
   const contentInput = useRef();
